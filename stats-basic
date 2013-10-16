@@ -1,0 +1,78 @@
+INSTALLING
+----------
+cd /usr/src;
+wget http://www.asternic.net/download/asternic-stats-1.4.tgz;
+tar zvxf asternic-stats-1.4.tgz;
+cd asternic-stats;
+mv html /var/www/html/stats;
+mv parselog /usr/local;
+mysqladmin -u root -p create qstats
+mysql -u root -p qstats < sql/qstats.sql
+crontab -e
+0 * * * * php -q /usr/local/parselog/parselog.php convertlocal
+
+1) Untar de file (you already done that)
+
+2) Copy /html to a suitable place on your web root
+
+3) Create a new database:
+
+#> mysqladmin -u root -p create qstats
+
+4) Create the tables as in /sql/qstats.sql:
+
+#> mysql -u root -p qstats < ./sql/qstats.sql
+
+5) Edit /html/config.php to set your db user and pass,
+   the AMI credentials (as set in /etc/asterisk/manager.conf).
+   You can also select the language.
+
+6) Edit /parselog/config.php to set the location and 
+   name of the queue_log file and your db user and pass
+
+
+PARSING LOGS
+------------
+
+* CRON way:
+
+To parse the log at periodic intervals via a cronjob:
+
+Inside the /parselog directory you will find a script to do
+the job:  ./parselog.php
+If you dont have binftm_misc installed you might need
+to run 'php -q ./parselog.php'
+
+If it works, add a cron script to run it periodically. 
+Rotate logs if you want..
+
+* REALTIME parsing
+
+Realtime parsing is only available in the commercial version.
+
+FREEPBX (Trixbox, Elastix, etc) 
+-------------------------------
+
+If you run FreePBX, your agents will be LOCAL/blahblah
+To let the parselog script change that, use the parameter
+'convertlocal' like:
+
+./parselog.php convertlocal
+
+MAINTENANCE
+-----------
+
+If you want to clear/purgue the tables, run parselog.php with
+the purge parameter:
+
+./parselog.php purgue
+
+Attention! It will remove all queue activity from the logs so you
+can start afresh.
+
+
+ACCESING STATS
+--------------
+
+Point your browser to the new url and that's it
+
